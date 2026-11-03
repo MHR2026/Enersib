@@ -6,6 +6,8 @@ export type Lang = keyof typeof languages;
 export const company = {
   name: 'Enersib',
   legalName: 'Enersib S.L.',
+  // Titular de la web (aviso legal)
+  owner: { name: 'Energia Solar Illes Balears SL', nif: 'B-16627358', address: 'C/ Nuno Sanç, 2', city: '07200 Felanitx (Illes Balears)' },
   address: 'C/ Rei Sanç, 2',
   city: '07200 Felanitx (Mallorca)',
   email: 'info@enersib.com',

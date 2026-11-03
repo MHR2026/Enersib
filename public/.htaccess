@@ -12,11 +12,12 @@ DirectoryIndex index.html
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
-  # Dominio definitivo: forzar https://www.enersib.com
+  # Dominio definitivo: forzar https://www.enersib.com (no afecta a direcciones de pruebas)
+  RewriteCond %{HTTP_HOST} ^(www\.)?enersib\.com$ [NC]
   RewriteCond %{HTTPS} off
   RewriteCond %{HTTP:X-Forwarded-Proto} !https
   RewriteRule ^ https://www.enersib.com%{REQUEST_URI} [L,R=301]
-  RewriteCond %{HTTP_HOST} !^www\. [NC]
+  RewriteCond %{HTTP_HOST} ^enersib\.com$ [NC]
   RewriteRule ^ https://www.enersib.com%{REQUEST_URI} [L,R=301]
 
   # WordPress antiguo: panel y XML-RPC bloqueados
@@ -35,7 +36,13 @@ DirectoryIndex index.html
 </IfModule>
 
 <IfModule mod_headers.c>
-  Header always set Strict-Transport-Security "max-age=31536000" "expr=%{HTTPS} == 'on'"
+  <If "%{HTTPS} == 'on' && %{HTTP_HOST} == 'www.enersib.com'">
+    Header always set Strict-Transport-Security "max-age=31536000"
+  </If>
+  # Las direcciones de pruebas no deben aparecer en Google
+  <If "%{HTTP_HOST} != 'www.enersib.com' && %{HTTP_HOST} != 'enersib.com'">
+    Header always set X-Robots-Tag "noindex, nofollow"
+  </If>
   Header always set X-Content-Type-Options "nosniff"
   Header always set X-Frame-Options "SAMEORIGIN"
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
