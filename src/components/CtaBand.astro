@@ -1,0 +1,16 @@
+---
+// Franja final «¿Quieres saber cuánto puedes ahorrar?» con botón al contacto.
+import { routes, useTranslations, type Lang } from '../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+<section class="bg-sun">
+  <div class="mx-auto flex max-w-6xl flex-col gap-5 px-4 py-14 md:flex-row md:items-center md:justify-between">
+    <div>
+      <h2 class="text-3xl text-deep">{t('home.cta.title')}</h2>
+      <p class="mt-2 text-lg text-deep/80">{t('home.cta.text')}</p>
+    </div>
+    <a href={`/${lang}/${routes.contact}`} class="shrink-0 self-start rounded-full bg-deep px-7 py-3 font-semibold text-white hover:bg-deep-dark md:self-auto">{t('cta.quote')}</a>
+  </div>
+</section>

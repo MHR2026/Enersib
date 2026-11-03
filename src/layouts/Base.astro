@@ -1,0 +1,101 @@
+---
+import '../styles/global.css';
+import Icon from '../components/Icon.astro';
+import { company, departments, languages, routes, tel, useTranslations, type Lang } from '../i18n/ui';
+
+interface Props { lang: Lang; title?: string; description?: string; path?: string; noindex?: boolean }
+const { lang, title, description, path = '', noindex = false } = Astro.props;
+const t = useTranslations(lang);
+const site = 'https://www.enersib.com';
+const pageTitle = title ? `${title} · Enersib` : t('meta.title');
+const pageDescription = description ?? t('meta.description');
+const nav = [
+  [routes.solar, t('nav.solar')],
+  [routes.boilers, t('nav.boilers')],
+  [routes.contact, t('nav.contact')],
+];
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'LocalBusiness',
+  name: company.legalName,
+  url: `${site}/${lang}/`,
+  image: `${site}/images/instalacion-azotea.webp`,
+  email: company.email,
+  telephone: departments.map(([, , n]) => `+34${n.replace(/\s/g, '')}`),
+  address: { '@type': 'PostalAddress', streetAddress: company.address, postalCode: '07200', addressLocality: 'Felanitx', addressRegion: 'Illes Balears', addressCountry: 'ES' },
+  areaServed: 'Illes Balears',
+};
+---
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDescription} />
+    <meta name="theme-color" content="#0b2e4a" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    {noindex ? <meta name="robots" content="noindex" /> : <>
+      <link rel="canonical" href={`${site}/${lang}/${path}`} />
+      {Object.keys(languages).map((l) => <link rel="alternate" hreflang={l} href={`${site}/${l}/${path}`} />)}
+      <link rel="alternate" hreflang="x-default" href={`${site}/es/${path}`} />
+    </>}
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:image" content={`${site}/images/instalacion-azotea.webp`} />
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+  </head>
+  <body>
+    <header class="sticky top-0 z-40 border-b border-line bg-white/95 backdrop-blur">
+      <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
+        <a href={`/${lang}/`} class="flex items-center gap-2" aria-label="Enersib">
+          <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-sun text-deep"><Icon name="sun" class="h-6 w-6" /></span>
+          <span class="text-xl font-extrabold tracking-tight text-deep">ENERSIB</span>
+        </a>
+        <nav class="flex items-center gap-5 text-sm font-semibold">
+          {nav.map(([href, label]) => (
+            <a href={`/${lang}/${href}`} class:list={['hidden hover:text-sun-dark lg:inline', path === href ? 'text-sun-dark' : 'text-ink/80']}>{label}</a>
+          ))}
+          <details class="relative">
+            <summary class="cursor-pointer list-none rounded px-2 py-1 text-xs uppercase text-ink/70 hover:text-sun-dark">{lang} ▾</summary>
+            <ul class="absolute right-0 mt-2 w-36 rounded-lg bg-white py-1 shadow-lg ring-1 ring-line">
+              {Object.entries(languages).map(([l, name]) => (
+                <li><a href={`/${l}/${path}`} hreflang={l} class:list={['block px-4 py-2 hover:bg-sky', l === lang && 'text-sun-dark']}>{name}</a></li>
+              ))}
+            </ul>
+          </details>
+          <a href={`/${lang}/${routes.contact}`} class="rounded-full bg-sun px-4 py-2 text-deep hover:bg-sun-dark">{t('cta.quote')}</a>
+        </nav>
+      </div>
+      <!-- menú en móvil -->
+      <nav class="flex gap-5 overflow-x-auto border-t border-line px-4 py-2 text-sm font-semibold lg:hidden">
+        {nav.map(([href, label]) => <a href={`/${lang}/${href}`} class:list={['shrink-0', path === href ? 'text-sun-dark' : 'text-ink/80']}>{label}</a>)}
+      </nav>
+    </header>
+
+    <main><slot /></main>
+
+    <footer class="bg-deep-dark text-white/80">
+      <div class="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:grid-cols-2 lg:grid-cols-4">
+        <div>
+          <p class="text-xl font-extrabold text-white">{company.legalName}</p>
+          <p class="mt-2 text-sm">{t('footer.text')}</p>
+        </div>
+        <div class="space-y-1 text-sm">
+          <p>{company.address}</p>
+          <p>{company.city}</p>
+          <p><a class="hover:text-white" href={`mailto:${company.email}`}>{company.email}</a></p>
+        </div>
+        <ul class="space-y-1 text-sm lg:col-span-1">
+          {departments.map(([key, person, n]) => <li>{t(key)} ({person}): <a class="whitespace-nowrap hover:text-white" href={tel(n)}>{n}</a></li>)}
+        </ul>
+        <div class="space-y-2 text-sm">
+          {nav.map(([href, label]) => <p><a class="hover:text-white" href={`/${lang}/${href}`}>{label}</a></p>)}
+          <p class="pt-2"><a class="underline hover:text-white" href={`/${lang}/legal/`}>{t('footer.legal')}</a></p>
+        </div>
+      </div>
+      <div class="border-t border-white/10 py-5 text-center text-xs text-white/50">© {new Date().getFullYear()} {company.legalName}</div>
+    </footer>
+  </body>
+</html>

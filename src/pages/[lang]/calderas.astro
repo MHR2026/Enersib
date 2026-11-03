@@ -1,0 +1,47 @@
+---
+import Base from '../../layouts/Base.astro';
+import Icon from '../../components/Icon.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { departments, languages, routes, tel, useTranslations, type Key, type Lang } from '../../i18n/ui';
+
+export function getStaticPaths() {
+  return Object.keys(languages).map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+const t = useTranslations(lang);
+const brands: [string, string, Key][] = [
+  ['okofen', 'ÖkoFEN', 'boilers.okofen'],
+  ['vigas', 'Vigas', 'boilers.vigas'],
+  ['heizomat', 'Heizomat', 'boilers.heizomat'],
+  ['easypell', 'Easypell', 'boilers.easypell'],
+];
+const biomass = departments.find(([key]) => key === 'dept.biomass')!;
+---
+<Base lang={lang} title={t('nav.boilers')} description={t('boilers.text')} path={routes.boilers}>
+  <section class="bg-sky">
+    <div class="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 lg:grid-cols-[1.2fr_1fr]">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.25em] text-leaf">{t('boilers.eyebrow')}</p>
+        <h1 class="mt-4 text-4xl leading-tight text-deep sm:text-5xl">{t('boilers.title')}</h1>
+        <p class="mt-5 text-lg text-ink/75">{t('boilers.text')}</p>
+        <a href={tel(biomass[2])} class="mt-8 inline-flex items-center gap-2 rounded-full bg-leaf px-6 py-3 font-semibold text-white hover:brightness-95">
+          <Icon name="phone" class="h-5 w-5" />{t('boilers.contact')} ({biomass[1]}): {biomass[2]}
+        </a>
+      </div>
+      <img src="/images/okofen-pellematic.webp" alt="ÖkoFEN Pellematic" width="640" height="392" class="w-full rounded-2xl bg-white ring-1 ring-line" />
+    </div>
+  </section>
+
+  <section class="mx-auto grid max-w-6xl gap-6 px-4 py-20 md:grid-cols-2">
+    {brands.map(([logo, name, text]) => (
+      <article class="flex flex-col rounded-2xl border border-line bg-white p-6 shadow-sm">
+        <img src={`/images/logo-${logo}.webp`} alt={name} width="600" height="345" loading="lazy" class="h-24 w-auto self-start object-contain" />
+        <h2 class="mt-4 text-2xl text-deep">{name}</h2>
+        <p class="mt-2 leading-relaxed text-ink/75">{t(text)}</p>
+      </article>
+    ))}
+  </section>
+
+  <CtaBand lang={lang} />
+</Base>

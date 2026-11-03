@@ -1,0 +1,50 @@
+# Configuración para Apache
+
+ErrorDocument 404 /404.html
+Options -Indexes -MultiViews
+DirectoryIndex index.html
+
+# Configuración del formulario: nunca accesible desde la web
+<Files "enersib-form-config.php">
+  Require all denied
+</Files>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Dominio definitivo: forzar https://www.enersib.com
+  RewriteCond %{HTTPS} off
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteRule ^ https://www.enersib.com%{REQUEST_URI} [L,R=301]
+  RewriteCond %{HTTP_HOST} !^www\. [NC]
+  RewriteRule ^ https://www.enersib.com%{REQUEST_URI} [L,R=301]
+
+  # WordPress antiguo: panel y XML-RPC bloqueados
+  RewriteRule ^(wp-admin|wp-login\.php|xmlrpc\.php|wp-json)(/|$) - [F,L]
+
+  # Portada: idioma según el navegador (castellano por defecto)
+  RewriteCond %{HTTP:Accept-Language} ^(ca|en|de) [NC]
+  RewriteRule ^$ /%1/ [L,R=302]
+  RewriteRule ^$ /es/ [L,R=302]
+
+  # URLs de la web antigua (WordPress)
+  RewriteRule ^energia-solar/?$ /es/energia-solar/ [L,R=301]
+  RewriteRule ^company/?$ /es/calderas/ [L,R=301]
+  RewriteRule ^contact/?$ /es/contacto/ [L,R=301]
+  RewriteRule ^(feed|comments/feed)/?$ /es/ [L,R=301]
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header always set Strict-Transport-Security "max-age=31536000" "expr=%{HTTPS} == 'on'"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/webp "access plus 1 month"
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+</IfModule>
